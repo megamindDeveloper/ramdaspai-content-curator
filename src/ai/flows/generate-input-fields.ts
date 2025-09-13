@@ -39,7 +39,7 @@ Possible fields include: youtubeUrl, imageUrl, reelsUrl, thumbnail, screenshot1,
 
 Do not include any fields that are not relevant to the content type.
 
-For example, if the content type is "Images", the output should be ["imageUrl"].
+For example, if the content type is "Images", the output should be {"fields": ["imageUrl"]}.
 `,
 });
 
