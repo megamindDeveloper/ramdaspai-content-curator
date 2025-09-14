@@ -132,7 +132,7 @@ export default function LoginPage() {
               )}
             />
             {authError && <p className="text-sm font-medium text-destructive">{authError}</p>}
-            <Button type="submit" className="w-full" disabled={isSubmitting || loading}>
+            <Button type="submit" className="w-full bg-[#E85B25]" disabled={isSubmitting || loading}>
               {isSubmitting ? "Signing In..." : "Sign In"}
             </Button>
           </form>
