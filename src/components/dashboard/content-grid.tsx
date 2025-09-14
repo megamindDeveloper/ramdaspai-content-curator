@@ -13,17 +13,17 @@ type ContentGridProps = {
 const contentCategories = [
   {
     type: "Reels",
-    title: "Reels",
+    title: "Social Media Reels",
     icon: Clapperboard,
   },
   {
     type: "Screenshots",
-    title: "Screenshots",
+    title: "Social Media Screenshots",
     icon: Camera,
   },
   {
     type: "Greetings",
-    title: "Greetings",
+    title: "Professional Greetings",
     icon: Gift,
   },
 ] as const;
