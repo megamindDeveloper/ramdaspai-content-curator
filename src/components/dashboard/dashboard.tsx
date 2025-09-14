@@ -21,8 +21,6 @@ export default function Dashboard() {
   };
 
   const contentByType = {
-    YouTube: contentItems.filter((item) => item.type === "YouTube"),
-    Images: contentItems.filter((item) => item.type === "Images"),
     Reels: contentItems.filter((item) => item.type === "Reels"),
     Screenshots: contentItems.filter((item) => item.type === "Screenshots"),
   };

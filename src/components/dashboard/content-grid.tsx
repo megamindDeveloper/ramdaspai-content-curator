@@ -1,27 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ContentItem } from "@/lib/types";
-import { Youtube, Image, Clapperboard, Camera } from "lucide-react";
+import { Clapperboard, Camera } from "lucide-react";
 
 type ContentGridProps = {
   content: {
-    YouTube: ContentItem[];
-    Images: ContentItem[];
     Reels: ContentItem[];
     Screenshots: ContentItem[];
   };
 };
 
 const contentCategories = [
-  {
-    type: "YouTube",
-    title: "YouTube Videos",
-    icon: Youtube,
-  },
-  {
-    type: "Images",
-    title: "Images",
-    icon: Image,
-  },
   {
     type: "Reels",
     title: "Reels",

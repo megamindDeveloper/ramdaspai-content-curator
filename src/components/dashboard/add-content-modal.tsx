@@ -24,7 +24,7 @@ type AddContentModalProps = {
   onContentAdd: (type: ContentType, data: Record<string, any>) => void;
 };
 
-const contentTypes: ContentType[] = ["YouTube", "Images", "Reels", "Screenshots"];
+const contentTypes: ContentType[] = ["Reels", "Screenshots"];
 
 export function AddContentModal({ isOpen, onOpenChange, onContentAdd }: AddContentModalProps) {
   const [selectedType, setSelectedType] = useState<ContentType | null>(null);

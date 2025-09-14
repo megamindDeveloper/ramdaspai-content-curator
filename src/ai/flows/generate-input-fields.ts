@@ -13,7 +13,7 @@ import {z} from 'genkit';
 
 const GenerateInputFieldsInputSchema = z.object({
   contentType: z
-    .enum(['YouTube', 'Images', 'Reels', 'Screenshots'])
+    .enum(['Reels', 'Screenshots'])
     .describe('The type of content to be submitted.'),
 });
 export type GenerateInputFieldsInput = z.infer<typeof GenerateInputFieldsInputSchema>;

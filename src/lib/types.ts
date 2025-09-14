@@ -1,4 +1,4 @@
-export type ContentType = 'YouTube' | 'Images' | 'Reels' | 'Screenshots';
+export type ContentType = 'Reels' | 'Screenshots';
 
 export type ContentItem = {
     id: string;
