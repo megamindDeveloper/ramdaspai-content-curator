@@ -4,4 +4,5 @@ export type ContentItem = {
     id: string;
     type: ContentType;
     data: Record<string, any>;
+    createdAt: Date;
 };

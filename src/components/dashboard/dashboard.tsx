@@ -5,6 +5,7 @@ import type { ContentItem, ContentType } from "@/lib/types";
 import { Header } from "./header";
 import { ContentGrid } from "./content-grid";
 import { AddContentModal } from "./add-content-modal";
+import { ContentList } from "./content-list";
 
 export default function Dashboard() {
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
@@ -15,8 +16,9 @@ export default function Dashboard() {
       id: crypto.randomUUID(),
       type,
       data,
+      createdAt: new Date(),
     };
-    setContentItems((prevItems) => [...prevItems, newItem]);
+    setContentItems((prevItems) => [newItem, ...prevItems]);
     setIsModalOpen(false);
   };
 
@@ -29,8 +31,9 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header onAddClick={() => setIsModalOpen(true)} />
-      <main className="flex-1 p-4 sm:p-6 md:p-8">
+      <main className="flex-1 p-4 sm:p-6 md:p-8 space-y-6">
         <ContentGrid content={contentByType} />
+        <ContentList items={contentItems} />
       </main>
       <AddContentModal
         isOpen={isModalOpen}
