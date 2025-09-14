@@ -8,6 +8,10 @@ type ContentListProps = {
 
 function renderValue(value: any) {
     if (typeof value === 'string') {
+        // Truncate long strings
+        if (value.length > 50) {
+            return value.substring(0, 47) + '...';
+        }
         return value;
     }
     if (value instanceof FileList) {
@@ -20,42 +24,39 @@ export function ContentList({ items }: ContentListProps) {
   if (items.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-12">
-        <h3 className="text-lg font-semibold">No content added yet</h3>
+        <h3 className="text-lg font-semibold">No content in this category yet</h3>
         <p>Click "Add Content" to get started.</p>
       </div>
     );
   }
 
   return (
-    <div>
-        <h2 className="text-2xl font-bold tracking-tight mb-4">Recent Submissions</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {items.map((item) => (
-            <Card key={item.id}>
-            <CardHeader>
-                <div className="flex justify-between items-start">
-                    <div>
-                        <CardTitle className="text-lg">{item.type}</CardTitle>
-                        <CardDescription>
-                            {new Date(item.createdAt).toLocaleString()}
-                        </CardDescription>
-                    </div>
-                    <Badge variant="secondary">{item.type}</Badge>
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {items.map((item) => (
+        <Card key={item.id}>
+        <CardHeader>
+            <div className="flex justify-between items-start">
+                <div>
+                    <CardTitle className="text-lg capitalize">{item.type}</CardTitle>
+                    <CardDescription>
+                        {new Date(item.createdAt).toLocaleString()}
+                    </CardDescription>
                 </div>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-2 text-sm">
-                {Object.entries(item.data).map(([key, value]) => (
-                    <div key={key} className="grid grid-cols-3 gap-2">
-                        <span className="font-semibold capitalize text-muted-foreground">{key.replace(/([A-Z])/g, ' $1')}</span>
-                        <span className="col-span-2 break-all">{renderValue(value)}</span>
-                    </div>
-                ))}
+                <Badge variant="secondary">{item.type}</Badge>
+            </div>
+        </CardHeader>
+        <CardContent>
+            <div className="space-y-2 text-sm">
+            {Object.entries(item.data).map(([key, value]) => (
+                <div key={key} className="grid grid-cols-3 gap-2">
+                    <span className="font-semibold capitalize text-muted-foreground">{key.replace(/([A-Z])/g, ' $1')}</span>
+                    <span className="col-span-2 break-all">{renderValue(value)}</span>
                 </div>
-            </CardContent>
-            </Card>
-        ))}
-        </div>
+            ))}
+            </div>
+        </CardContent>
+        </Card>
+    ))}
     </div>
   );
 }
