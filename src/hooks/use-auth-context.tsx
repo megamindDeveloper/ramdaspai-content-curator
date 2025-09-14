@@ -2,17 +2,15 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { User, onAuthStateChanged, signOut as firebaseSignOut, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   signInWithEmailAndPassword: (email: string, pass: string) => Promise<any>;
-  signUpWithEmailAndPassword: (email: string, pass: string) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,19 +28,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
-    setLoading(true);
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      router.push('/dashboard');
-    } catch (error) {
-      console.error("Error signing in with Google: ", error);
-      setLoading(false);
-      throw error;
-    }
-  };
-
   const emailSignIn = async (email: string, pass: string) => {
     setLoading(true);
     try {
@@ -55,19 +40,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const emailSignUp = async (email: string, pass: string) => {
-    setLoading(true);
-    try {
-        await createUserWithEmailAndPassword(auth, email, pass);
-        router.push('/dashboard');
-    } catch(error) {
-        setLoading(false);
-        console.error("Error signing up with email: ", error);
-        throw error;
-    }
-  }
-
-
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
@@ -77,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const value = { user, loading, signInWithGoogle, signOut, signInWithEmailAndPassword: emailSignIn, signUpWithEmailAndPassword: emailSignUp };
+  const value = { user, loading, signOut, signInWithEmailAndPassword: emailSignIn };
 
   return (
     <AuthContext.Provider value={value}>
