@@ -1,11 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ContentItem } from "@/lib/types";
-import { Clapperboard, Camera } from "lucide-react";
+import type { ContentItem, ContentType } from "@/lib/types";
+import { Clapperboard, Camera, Gift } from "lucide-react";
 
 type ContentGridProps = {
   content: {
     Reels: ContentItem[];
     Screenshots: ContentItem[];
+    Greetings: ContentItem[];
   };
 };
 
@@ -19,6 +20,11 @@ const contentCategories = [
     type: "Screenshots",
     title: "Screenshots",
     icon: Camera,
+  },
+  {
+    type: "Greetings",
+    title: "Greetings",
+    icon: Gift,
   },
 ] as const;
 

@@ -1,4 +1,4 @@
-export type ContentType = 'Reels' | 'Screenshots';
+export type ContentType = 'Reels' | 'Screenshots' | 'Greetings';
 
 export type ContentItem = {
     id: string;

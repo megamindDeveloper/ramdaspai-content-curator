@@ -23,6 +23,7 @@ export default function Dashboard() {
   const contentByType = {
     Reels: contentItems.filter((item) => item.type === "Reels"),
     Screenshots: contentItems.filter((item) => item.type === "Screenshots"),
+    Greetings: contentItems.filter((item) => item.type === "Greetings"),
   };
 
   return (

@@ -20,13 +20,14 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { DialogFooter } from "../ui/dialog";
+import { Textarea } from "../ui/textarea";
 
 type DynamicFormProps = {
   type: ContentType;
   onFormSubmit: (data: Record<string, any>) => void;
 };
 
-const fieldConfig: Record<string, { label: string; type: string; placeholder?: string; description?: string }> = {
+const fieldConfig: Record<string, { label: string; type: string; placeholder?: string; description?: string, component?: React.ElementType }> = {
   youtubeUrl: { label: "YouTube URL", type: "url", placeholder: "https://youtube.com/watch?v=..." },
   imageUrl: { label: "Image", type: "file", description: "Upload a single image." },
   reelsUrl: { label: "Reels URL", type: "url", placeholder: "https://instagram.com/reel/..." },
@@ -36,6 +37,9 @@ const fieldConfig: Record<string, { label: string; type: string; placeholder?: s
   screenshot3: { label: "Screenshot 3", type: "file" },
   screenshot4: { label: "Screenshot 4", type: "file" },
   screenshot5: { label: "Screenshot 5", type: "file" },
+  name: { label: "Name", type: "text", placeholder: "Enter the name" },
+  designation: { label: "Designation", type: "text", placeholder: "Enter the designation" },
+  wishes: { label: "Wishes", type: "text", placeholder: "Enter your wishes", component: Textarea },
 };
 
 export function DynamicForm({ type, onFormSubmit }: DynamicFormProps) {
@@ -49,13 +53,15 @@ export function DynamicForm({ type, onFormSubmit }: DynamicFormProps) {
     fields.forEach((field) => {
       if (field.includes("Url")) {
         shape[field] = z.string().url({ message: "Please enter a valid URL." }).min(1, "This field is required.");
-      } else {
+      } else if (fieldConfig[field]?.type === 'file') {
         const isFile = typeof window !== 'undefined' && typeof FileList !== 'undefined'
         if (isFile) {
             shape[field] = z.instanceof(FileList).refine((files) => files?.length > 0, "File is required.");
         } else {
             shape[field] = z.any();
         }
+      } else {
+        shape[field] = z.string().min(1, "This field is required.");
       }
     });
     return z.object(shape);
@@ -102,6 +108,8 @@ export function DynamicForm({ type, onFormSubmit }: DynamicFormProps) {
     const config = fieldConfig[fieldName];
     if (!config) return null;
 
+    const InputComponent = config.component || Input;
+
     return (
       <FormField
         key={fieldName}
@@ -113,11 +121,11 @@ export function DynamicForm({ type, onFormSubmit }: DynamicFormProps) {
               <FormItem>
                 <FormLabel>{config.label}</FormLabel>
                 <FormControl>
-                  <Input
+                  <InputComponent
                     type={config.type}
                     placeholder={config.placeholder}
                     {...(config.type === 'file' ? {
-                        onChange: (e) => onChange(e.target.files)
+                        onChange: (e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.files)
                     } : { onChange, ...rest })}
                     value={config.type === 'file' ? undefined : field.value}
                   />
@@ -136,6 +144,7 @@ export function DynamicForm({ type, onFormSubmit }: DynamicFormProps) {
       <div className="space-y-4">
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-20 w-full" />
       </div>
     );
   }

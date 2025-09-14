@@ -13,7 +13,7 @@ import {z} from 'genkit';
 
 const GenerateInputFieldsInputSchema = z.object({
   contentType: z
-    .enum(['Reels', 'Screenshots'])
+    .enum(['Reels', 'Screenshots', 'Greetings'])
     .describe('The type of content to be submitted.'),
 });
 export type GenerateInputFieldsInput = z.infer<typeof GenerateInputFieldsInputSchema>;
@@ -35,11 +35,11 @@ const prompt = ai.definePrompt({
 
 Given the content type: {{{contentType}}}, return a JSON array containing only the names of the necessary input fields.
 
-Possible fields include: youtubeUrl, imageUrl, reelsUrl, thumbnail, screenshot1, screenshot2, screenshot3, screenshot4, screenshot5.
+Possible fields include: youtubeUrl, imageUrl, reelsUrl, thumbnail, screenshot1, screenshot2, screenshot3, screenshot4, screenshot5, name, designation, wishes.
 
 Do not include any fields that are not relevant to the content type.
 
-For example, if the content type is "Images", the output should be {"fields": ["imageUrl"]}.
+For example, if the content type is "Reels", the output should be {"fields": ["reelsUrl", "thumbnail"]}.
 `,
 });
 
