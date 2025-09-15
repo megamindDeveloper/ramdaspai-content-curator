@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ContentItem } from "@/lib/types";
+import { ContentItem, ContentType } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -27,24 +27,11 @@ type ContentListProps = {
 
 const ITEMS_PER_PAGE = 6;
 
-// Format field names to human-readable form (camelCase → "Camel Case")
-function formatFieldName(key: string) {
-  return key
-    .replace(/([A-Z])/g, " $1")
-    .replace(/^./, (str) => str.toUpperCase());
-}
-
-// Render values: images, long strings, FileLists
+// Render values: truncate long strings
 function renderValue(value: any) {
   if (typeof value === "string") {
     if (value.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
-      return (
-        <img
-          src={value}
-          alt="preview"
-          className="h-12 w-12 object-cover rounded"
-        />
-      );
+      return <img src={value} alt="preview" className="h-12 w-12 object-cover rounded" />;
     }
     if (value.length > 50) return value.substring(0, 47) + "...";
     return value;
@@ -57,28 +44,43 @@ function renderValue(value: any) {
   return JSON.stringify(value);
 }
 
+// Map field order per content type
+const fieldOrderMap: Record<ContentType, string[]> = {
+  Reels: ["name", "designation", "reelsUrl", "thumbnailUrl"],
+  Screenshots: ["screenshotUrl"],
+  Greetings: ["name", "position", "coverImageUrl", "greetingsImageUrl"],
+};
+
+// Friendly column labels
+const fieldLabelMap: Record<string, string> = {
+  name: "Name",
+  designation: "Designation",
+  reelsUrl: "Video URL",
+  thumbnailUrl: "Cover Image",
+  screenshotUrl: "Screenshot",
+  description: "Description",
+  position: "Position",
+  coverImageUrl: "Cover Image",
+  greetingsImageUrl: "Greeting Image",
+};
+
+// Fields that are images (to render <img>)
+const imageFields = ["thumbnailUrl", "coverImageUrl", "screenshotUrl", "greetingsImageUrl"];
+
 export function ContentList({ items, onEdit, onDelete }: ContentListProps) {
   const [currentPage, setCurrentPage] = useState(1);
-
   const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentItems = items.slice(startIndex, endIndex);
 
-  const handlePreviousPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  };
+  const handlePreviousPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
 
   if (items.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-12">
-        <h3 className="text-lg font-semibold">
-          No content in this category yet
-        </h3>
+        <h3 className="text-lg font-semibold">No content in this category yet</h3>
         <p>Click "Add Content" to get started.</p>
       </div>
     );
@@ -91,7 +93,10 @@ export function ContentList({ items, onEdit, onDelete }: ContentListProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Type</TableHead>
-              <TableHead>Details</TableHead>
+              {currentItems[0] &&
+                (fieldOrderMap[currentItems[0].type] || Object.keys(currentItems[0].data)).map((field) => (
+                  <TableHead key={field}>{fieldLabelMap[field] || field}</TableHead>
+                ))}
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -100,45 +105,22 @@ export function ContentList({ items, onEdit, onDelete }: ContentListProps) {
               <TableRow key={item.id}>
                 <TableCell className="capitalize">{item.type}</TableCell>
 
-                <TableCell>
-                  <div className="space-y-1 text-sm">
-                    {item.data && typeof item.data === "object" ? (
-                      Object.entries(item.data)
-                        .filter(
-                          ([key]) =>
-                            key !== "createdAt" && key !== "updatedAt"
-                        )
-                        .map(([key, value]) => (
-                          <div key={key} className="flex gap-2">
-                            <span className="font-semibold text-muted-foreground">
-                              {formatFieldName(key)}:
-                            </span>
-                            <span className="break-all">{renderValue(value)}</span>
-                          </div>
-                        ))
-                    ) : (
-                      <span className="text-muted-foreground">
-                        No details available
-                      </span>
-                    )}
-                  </div>
-                </TableCell>
+                {(fieldOrderMap[item.type] || Object.keys(item.data)).map((field) => {
+                  const value = item.data[field];
+                  return (
+                    <TableCell key={field}>
+                      {value
+                        ? imageFields.includes(field)
+                          ? <img src={value} alt={fieldLabelMap[field]} className="h-12 w-12 object-cover rounded" />
+                          : renderValue(value)
+                        : "-"}
+                    </TableCell>
+                  );
+                })}
 
                 <TableCell className="text-right space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => onEdit?.(item)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => onDelete?.(item.id)}
-                  >
-                    Delete
-                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => onEdit?.(item)}>Edit</Button>
+                  <Button size="sm" variant="destructive" onClick={() => onDelete?.(item.id)}>Delete</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -152,13 +134,8 @@ export function ContentList({ items, onEdit, onDelete }: ContentListProps) {
             <PaginationItem>
               <PaginationPrevious
                 href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handlePreviousPage();
-                }}
-                className={
-                  currentPage === 1 ? "pointer-events-none opacity-50" : undefined
-                }
+                onClick={(e) => { e.preventDefault(); handlePreviousPage(); }}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : undefined}
               />
             </PaginationItem>
             <PaginationItem>
@@ -169,15 +146,8 @@ export function ContentList({ items, onEdit, onDelete }: ContentListProps) {
             <PaginationItem>
               <PaginationNext
                 href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNextPage();
-                }}
-                className={
-                  currentPage === totalPages
-                    ? "pointer-events-none opacity-50"
-                    : undefined
-                }
+                onClick={(e) => { e.preventDefault(); handleNextPage(); }}
+                className={currentPage === totalPages ? "pointer-events-none opacity-50" : undefined}
               />
             </PaginationItem>
           </PaginationContent>

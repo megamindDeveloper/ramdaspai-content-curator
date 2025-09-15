@@ -92,12 +92,13 @@ export default function LoginPage() {
     <img
       src="/image.png" // replace with your logo path
       alt="Logo"
-      className="w-32 h-auto mb-6" // adjust size as needed
+      className="w-52 h-auto mb-6" // adjust size as needed
     />
 
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Dr. Ramdas M Pai Website CMS</CardTitle>
+        <CardTitle className="text-xl">Dr. Ramdas M Pai Website </CardTitle>
+        <CardTitle className="text-sm pb-6">Content Management System</CardTitle>
         <CardDescription>
           Sign in to your account to continue
         </CardDescription>
@@ -140,6 +141,7 @@ export default function LoginPage() {
       </CardContent>
     </Card>
   </div>
+  
 </div>
 
   );
