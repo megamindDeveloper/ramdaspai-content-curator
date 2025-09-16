@@ -27,10 +27,11 @@ export default function Dashboard() {
 
   // 🔥 Fetch data from Firestore (live updates)
   useEffect(() => {
+    // store all unsubscribe functions
     const unsubscribers = contentCategories.map((type) => {
       const colRef = collection(db, type);
-      const q = query(colRef, orderBy("order", "asc")); // sort by order field
-  
+      const q = query(colRef, orderBy("order", "asc")); // Firestore sorts within this type
+
       return onSnapshot(q, (snapshot) => {
         const items: ContentItem[] = snapshot.docs.map((doc) => {
           const docData = doc.data();
@@ -45,25 +46,31 @@ export default function Dashboard() {
             order: orderValue,
           };
         });
-  
-        // Move items with order 0 or invalid to the end
+
+        // Move invalid/zero orders to the end
         const sortedItems = [
           ...items.filter((item) => item.order && item.order > 0),
           ...items.filter((item) => !item.order || item.order <= 0),
         ];
-  
+
+        // ✅ merge with other types and sort globally
         setContentItems((prev) => {
+          // keep only items from other collections
           const otherTypes = prev.filter((item) => item.type !== type);
-          return [...otherTypes, ...sortedItems];
+          const merged = [...otherTypes, ...sortedItems];
+
+          // 🔑 global sort across all types
+          return merged.sort(
+            (a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)
+          );
         });
       });
     });
-  
-    return () => {
-      unsubscribers.forEach((unsub) => unsub());
-    };
+
+    // cleanup on unmount
+    return () => unsubscribers.forEach((unsub) => unsub());
   }, []);
-  
+
   // 🔥 Add new content
   const handleAddContent = async (type: ContentType, data: Record<string, any>) => {
     await saveContentToFirebase(type, data);
