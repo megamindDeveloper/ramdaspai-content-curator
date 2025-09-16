@@ -31,34 +31,45 @@ export function DynamicForm({ type, onFormSubmit }: DynamicFormProps) {
       ];
     }
     if (type === "Screenshots") {
-      return [{ name: "screenshot", label: "Screenshot", type: "file", description: "Upload a single image." }];
+      return [
+        { name: "screenshot", label: "Screenshot", type: "file", description: "Upload a single image." },
+        { name: "order", label: "Order Number", type: "int" },
+      ];
     }
     if (type === "Greetings") {
       return [
         { name: "name", label: "Name", type: "text" },
         { name: "position", label: "Position", type: "text" },
         { name: "coverImage", label: "Cover Image", type: "file", description: "Upload a cover image." },
+        { name: "order", label: "Order Number", type: "int" },
         { name: "greetingsImage", label: "Greetings Image", type: "file", description: "Upload a greetings image." },
       ];
     }
     return [];
   }, [type]);
 
-
   // Build Zod schema dynamically
-  const formSchema = useMemo(() => {
-    const shape: Record<string, z.ZodTypeAny> = {};
-    fields.forEach((field) => {
-      if (field.type === "url") {
-        shape[field.name] = z.string().url("Please enter a valid URL").min(1, "This field is required");
-      } else if (field.type === "file") {
-        shape[field.name] = z.any().refine((val) => val instanceof FileList && val.length > 0, "File is required");
-      } else {
-        shape[field.name] = z.string().min(1, "This field is required");
-      }
-    });
-    return z.object(shape);
-  }, [fields]);
+ // Build Zod schema dynamically
+const formSchema = useMemo(() => {
+  const shape: Record<string, z.ZodTypeAny> = {};
+  fields.forEach((field) => {
+    if (field.name === "order") {
+      // Make Order Number optional
+      shape[field.name] = z.string().optional();
+    } else if (field.type === "url") {
+      shape[field.name] = z.string().url("Please enter a valid URL").min(1, "This field is required");
+    } else if (field.type === "file") {
+      shape[field.name] = z.any().refine(
+        (val) => val instanceof FileList && val.length > 0,
+        "File is required"
+      );
+    } else {
+      shape[field.name] = z.string().min(1, "This field is required");
+    }
+  });
+  return z.object(shape);
+}, [fields]);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

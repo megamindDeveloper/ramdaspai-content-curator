@@ -53,13 +53,3 @@ export async function updateContent(type: string, id: string, data: Record<strin
     updatedAt: new Date(),
   });
 }
-
-export async function addFieldToAllDocs() {
-  const snapshot = await getDocs(collection(db, "Reels"));
-  snapshot.forEach(async (d) => {
-    const ref = doc(db, "Reels", d.id);
-    await updateDoc(ref, {
-      order: 0, // 👈 default value for all docs
-    });
-  });
-}

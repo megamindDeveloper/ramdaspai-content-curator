@@ -8,7 +8,7 @@ import { ContentList } from "./content-list";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import type { ContentItem, ContentType } from "@/lib/types";
-import { addFieldToAllDocs, deleteContent, saveContentToFirebase, updateContent, } from "@/lib/firebase-functions";
+import { deleteContent, saveContentToFirebase, updateContent, } from "@/lib/firebase-functions";
 import { db } from "@/lib/firebase";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { EditModal } from "./EditModal";
@@ -29,38 +29,44 @@ export default function Dashboard() {
   useEffect(() => {
     const unsubscribers = contentCategories.map((type) => {
       const colRef = collection(db, type);
-      const q = query(colRef, orderBy("createdAt", "desc"));
-
+      const q = query(colRef, orderBy("order", "asc")); // sort by order field
+  
       return onSnapshot(q, (snapshot) => {
         const items: ContentItem[] = snapshot.docs.map((doc) => {
           const docData = doc.data();
-
+          const orderValue = docData.order ?? 0; // fallback to 0 if missing
           return {
             id: doc.id,
             type,
-            data: docData.data || docData, // ensure data object exists
+            data: docData.data || docData,
             createdAt: docData.createdAt?.toDate
               ? docData.createdAt.toDate()
               : new Date(docData.createdAt || Date.now()),
+            order: orderValue,
           };
         });
-
+  
+        // Move items with order 0 or invalid to the end
+        const sortedItems = [
+          ...items.filter((item) => item.order && item.order > 0),
+          ...items.filter((item) => !item.order || item.order <= 0),
+        ];
+  
         setContentItems((prev) => {
           const otherTypes = prev.filter((item) => item.type !== type);
-          return [...otherTypes, ...items];
+          return [...otherTypes, ...sortedItems];
         });
       });
     });
-
+  
     return () => {
       unsubscribers.forEach((unsub) => unsub());
     };
   }, []);
-
+  
   // 🔥 Add new content
   const handleAddContent = async (type: ContentType, data: Record<string, any>) => {
     await saveContentToFirebase(type, data);
-    await addFieldToAllDocs()
     setIsModalOpen(false);
   };
 
