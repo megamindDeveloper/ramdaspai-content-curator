@@ -26,6 +26,7 @@ export function DynamicForm({ type, onFormSubmit }: DynamicFormProps) {
         { name: "name", label: "Name", type: "text" },
         { name: "designation", label: "Designation", type: "text" },
         { name: "reelsUrl", label: "Reels URL", type: "url" },
+        { name: "order", label: "Order Number", type: "int" },
         { name: "thumbnail", label: "Thumbnail", type: "file", description: "Upload a thumbnail image." },
       ];
     }

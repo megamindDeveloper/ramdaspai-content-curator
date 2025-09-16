@@ -1,5 +1,5 @@
 import { db, storage } from "./firebase";
-import { collection, addDoc, deleteDoc, updateDoc, doc } from "firebase/firestore";
+import { collection, addDoc, deleteDoc, updateDoc, doc, getDocs } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import type { ContentType } from "@/lib/types";
 
@@ -51,5 +51,15 @@ export async function updateContent(type: string, id: string, data: Record<strin
   await updateDoc(docRef, {
     ...data,
     updatedAt: new Date(),
+  });
+}
+
+export async function addFieldToAllDocs() {
+  const snapshot = await getDocs(collection(db, "reels"));
+  snapshot.forEach(async (d) => {
+    const ref = doc(db, "reels", d.id);
+    await updateDoc(ref, {
+      order: 0, // 👈 default value for all docs
+    });
   });
 }

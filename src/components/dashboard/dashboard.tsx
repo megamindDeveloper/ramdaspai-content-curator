@@ -8,7 +8,7 @@ import { ContentList } from "./content-list";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import type { ContentItem, ContentType } from "@/lib/types";
-import { deleteContent, saveContentToFirebase, updateContent } from "@/lib/firebase-functions";
+import { addFieldToAllDocs, deleteContent, saveContentToFirebase, updateContent, } from "@/lib/firebase-functions";
 import { db } from "@/lib/firebase";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { EditModal } from "./EditModal";
@@ -60,6 +60,7 @@ export default function Dashboard() {
   // 🔥 Add new content
   const handleAddContent = async (type: ContentType, data: Record<string, any>) => {
     await saveContentToFirebase(type, data);
+    await addFieldToAllDocs()
     setIsModalOpen(false);
   };
 
