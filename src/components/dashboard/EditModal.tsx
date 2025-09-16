@@ -7,20 +7,31 @@ import { Input } from "@/components/ui/input";
 import { ContentItem } from "@/lib/types";
 import Image from "next/image";
 
-// Firebase
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { storage } from "@/lib/firebase";
-
-// Utility: convert camelCase or snake_case → Title Case with spaces
-const formatLabel = (key: string) => {
-  // Add space before capital letters, replace underscores with space, then capitalize first letters
-  const result = key
-    .replace(/([A-Z])/g, " $1")
-    .replace(/_/g, " ")
-    .toLowerCase()
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-  return result;
+// Friendly labels and field order
+const fieldOrderMap: Record<string, string[]> = {
+  Reels: ["name", "designation", "reelsUrl", "thumbnailUrl"],
+  Screenshots: [ "screenshotUrl"],
+  Greetings: ["name", "position", "coverImageUrl", "greetingsImageUrl"],
 };
+
+const fieldLabelMap: Record<string, string> = {
+  name: "Name",
+  designation: "Designation",
+  reelsUrl: "Video URL",
+  thumbnailUrl: "Cover Image",
+  screenshotUrl: "Image",
+  description: "Description",
+  position: "Position",
+  coverImageUrl: "Cover Image",
+  greetingsImageUrl: "Greeting Image",
+};
+
+// Fallback formatter
+const formatLabel = (key: string) => fieldLabelMap[key] || key
+  .replace(/([A-Z])/g, " $1")
+  .replace(/_/g, " ")
+  .toLowerCase()
+  .replace(/\b\w/g, (c) => c.toUpperCase());
 
 type EditModalProps = {
   item: ContentItem | null;
@@ -74,6 +85,10 @@ export function EditModal({ item, onSave, onClose }: EditModalProps) {
     }
   };
 
+  // Use defined order for this content type, fallback to object keys
+  const fieldsToRender = (fieldOrderMap[item.type] || Object.keys(formData))
+    .filter((key) => key !== "createdAt" && key !== "updatedAt");
+
   return (
     <Dialog open={!!item} onOpenChange={onClose}>
       <DialogContent>
@@ -82,45 +97,46 @@ export function EditModal({ item, onSave, onClose }: EditModalProps) {
         </DialogHeader>
 
         <div className="space-y-4">
-          {Object.entries(formData)
-            .filter(([key]) => key !== "createdAt" && key !== "updatedAt")
-            .map(([key, value]) => {
-              const isImageField =
-                key.toLowerCase().includes("image") || key.toLowerCase().includes("thumbnail") || key.toLowerCase().includes("screenshot") || key.toLowerCase().includes("screenshot");
+          {fieldsToRender.map((key) => {
+            const value = formData[key];
+            const isImageField =
+              key.toLowerCase().includes("image") ||
+              key.toLowerCase().includes("thumbnail") ||
+              key.toLowerCase().includes("screenshot");
 
-              return (
-                <div key={key}>
-                  <label className="block text-sm font-medium mb-1">{formatLabel(key)}</label>
+            return (
+              <div key={key}>
+                <label className="block text-sm font-medium mb-1">{formatLabel(key)}</label>
 
-                  {/* Show current image OR preview */}
-                  {isImageField && (
-                    <div className="mb-2">
-                      <Image
-                        src={previews[key] || (typeof value === "string" ? value : "")}
-                        alt={key}
-                        width={120}
-                        height={120}
-                        className="rounded border object-cover"
-                      />
-                    </div>
-                  )}
-
-                  {isImageField ? (
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleChange(key, e.target.files?.[0] || value)}
+                {/* Show current image OR preview */}
+                {isImageField && (
+                  <div className="mb-2">
+                    <Image
+                      src={previews[key] || (typeof value === "string" ? value : "")}
+                      alt={key}
+                      width={120}
+                      height={120}
+                      className="rounded border object-cover"
                     />
-                  ) : (
-                    <Input
-                      type="text"
-                      value={typeof value === "string" ? value : ""}
-                      onChange={(e) => handleChange(key, e.target.value)}
-                    />
-                  )}
-                </div>
-              );
-            })}
+                  </div>
+                )}
+
+                {isImageField ? (
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleChange(key, e.target.files?.[0] || value)}
+                  />
+                ) : (
+                  <Input
+                    type="text"
+                    value={typeof value === "string" ? value : ""}
+                    onChange={(e) => handleChange(key, e.target.value)}
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <DialogFooter className="mt-4">

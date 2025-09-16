@@ -47,7 +47,7 @@ export function Header({ onAddClick }: HeaderProps) {
 
       {/* Buttons */}
       <div className="flex items-center gap-4 mt-4 sm:mt-0">
-        <Button onClick={onAddClick} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+        <Button onClick={onAddClick} className="bg-[#E85B25] hover:bg-[#E85B25]/90 text-primary-foreground">
           <Plus className="w-4 h-4 mr-2" />
           Add Content
         </Button>

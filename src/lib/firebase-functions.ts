@@ -55,9 +55,9 @@ export async function updateContent(type: string, id: string, data: Record<strin
 }
 
 export async function addFieldToAllDocs() {
-  const snapshot = await getDocs(collection(db, "Reels"));
+  const snapshot = await getDocs(collection(db, "Greetings"));
   snapshot.forEach(async (d) => {
-    const ref = doc(db, "Reels", d.id);
+    const ref = doc(db, "Greetings", d.id);
     await updateDoc(ref, {
       order: 0, // 👈 default value for all docs
     });
