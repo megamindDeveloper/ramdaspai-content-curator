@@ -25,7 +25,7 @@ type ContentListProps = {
   onDelete?: (id: string) => void;
 };
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 15;
 
 // Render values: truncate long strings
 function renderValue(value: any) {
